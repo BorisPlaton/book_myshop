@@ -1,0 +1,8 @@
+.env
+venv
+.idea
+__pycache__
+db.sqlite3
+media
+static/shop/img/*
+!static/shop/img/no_image.png
