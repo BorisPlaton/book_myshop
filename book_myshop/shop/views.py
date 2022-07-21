@@ -1,14 +1,20 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView
 
+from cart.forms import CartAddProductForm
 from shop.models import Product, Category
 
 
 class ProductView(DetailView):
-    """Показывает страницу одного товара."""
+    """Показывает страницу определенного товара."""
     model = Product
     template_name = 'shop/product/detail.html'
     context_object_name = 'product'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = CartAddProductForm()
+        return context
 
 
 class ProductList(ListView):
