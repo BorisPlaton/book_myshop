@@ -14,7 +14,7 @@ class CartDetail(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cart = Cart(self.request)
+        cart = Cart(self.request).extended_cart
         for item in cart:
             item['update_form'] = CartAddProductForm(
                 initial={

@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.conf import settings
 
 from shop.models import Product
@@ -11,7 +9,7 @@ class Cart:
     через сессию пользователя.
     """
 
-    def add(self, product: Product, quantity, update=False):
+    def add(self, product: Product, quantity: int, update=False):
         """Добавляет товар в корзину."""
         product_pk = str(product.pk)
         cart_product = self.cart.get(product_pk)
@@ -43,13 +41,29 @@ class Cart:
 
     def clear(self):
         """Очищает полностью корзину"""
-        self.cart = {}
-        self.save()
+        try:
+            del self.session[settings.CART_SESSION_ID]
+            self.save()
+        except KeyError:
+            pass
 
     @property
     def total_price(self):
         """Возвращает общую стоимость корзины."""
-        return sum([Decimal(item['price']) * item['quantity'] for item in self.cart.values()])
+        return sum([float(item['price']) * item['quantity'] for item in self.cart.values()])
+
+    @property
+    def extended_cart(self):
+        products = Product.objects.filter(pk__in=self.cart.keys())
+        cart = {}
+
+        for pk, item in self.cart.items():
+            cart[pk] = {
+                'total_price': float(item['price']) * item['quantity'],
+                'product': products.get(pk=pk),
+                **item
+            }
+        return cart.values()
 
     def __init__(self, request):
         """
@@ -66,11 +80,11 @@ class Cart:
         Возвращает объект итерации, который содержит товары из
         корзины.
         """
-        products = Product.objects.filter(pk__in=map(int, self.cart.keys()))
+        products = Product.objects.filter(pk__in=self.cart.keys())
 
         for pk, item in self.cart.items():
             item.update({
-                'total_price': Decimal(item['price']) * item['quantity'],
+                'total_price': float(item['price']) * item['quantity'],
                 'product': products.get(pk=pk)
             })
             yield item

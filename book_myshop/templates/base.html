@@ -16,12 +16,12 @@
 </div>
 
 <div id="subheader">
-    {% with total_items=cart|length %}
-    {% if cart|length %}
+    {% with total_items=cart_data|length %}
+    {% if cart_data|length %}
     Your cart:
     <a href="{% url 'cart:cart_detail' %}">
         {{ total_items }} item{{ total_items|pluralize }},
-        ${{ cart.total_price }}
+        ${{ cart_data.total_price }}
     </a>
     {% else %}
     Your cart is empty.
