@@ -7,6 +7,7 @@ from cart.cart import Cart
 from cart.forms import CartAddProductForm
 from cart.utils import get_product_by_id
 from coupons.forms import CouponApplyForm
+from shop.recomender import Recommender
 
 
 class CartDetail(TemplateView):
@@ -25,6 +26,9 @@ class CartDetail(TemplateView):
             )
         context['cart'] = cart
         context['coupon_apply_form'] = CouponApplyForm()
+        context['recommended_products'] = Recommender().get_recommendation_for(
+            [item['product'] for item in cart]
+        )
         return context
 
 

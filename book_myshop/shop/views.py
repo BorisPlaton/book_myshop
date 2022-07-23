@@ -3,6 +3,7 @@ from django.views.generic import DetailView, ListView
 
 from cart.forms import CartAddProductForm
 from shop.models import Product, Category
+from shop.recomender import Recommender
 
 
 class ProductView(DetailView):
@@ -14,6 +15,7 @@ class ProductView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = CartAddProductForm()
+        context['recommended_products'] = Recommender().get_recommendation_for([self.object])
         return context
 
 

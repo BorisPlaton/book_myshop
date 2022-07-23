@@ -13,6 +13,7 @@ from cart.cart import Cart
 from orders.forms import OrderCreateForm
 from orders.models import OrderItem, Order
 from orders.tasks import order_created
+from shop.recomender import Recommender
 
 
 class CreateOrder(FormView):
@@ -35,14 +36,19 @@ class CreateOrder(FormView):
             order.coupon = cart.coupon
             order.discount = cart.coupon.discount
         order.save()
+        products_list = []
         for item in cart.extended_cart:
+            products_list.append(item['product'])
             OrderItem.objects.create(
                 order=order,
                 product=item['product'],
                 price=float(item['price']),
                 quantity=item['quantity'],
             )
+        Recommender().update_products_bought_with(products_list)
         cart.clear()
+        # Если используется Celery
+        # order_created().delay(order.id)
         order_created(order.id)
         return super().form_valid(form)
 
