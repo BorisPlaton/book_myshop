@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 from cart.cart import Cart
 from cart.forms import CartAddProductForm
 from cart.utils import get_product_by_id
+from coupons.forms import CouponApplyForm
 
 
 class CartDetail(TemplateView):
@@ -14,7 +15,7 @@ class CartDetail(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cart = Cart(self.request).extended_cart
+        cart = Cart(self.request)
         for item in cart:
             item['update_form'] = CartAddProductForm(
                 initial={
@@ -23,6 +24,7 @@ class CartDetail(TemplateView):
                 }
             )
         context['cart'] = cart
+        context['coupon_apply_form'] = CouponApplyForm()
         return context
 
 

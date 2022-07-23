@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from coupons.models import Coupon
 from shop.models import Product
 
 
@@ -65,6 +66,18 @@ class Cart:
             }
         return cart.values()
 
+    @property
+    def discount(self):
+        """Скидка на всю стоимость, если есть купон."""
+        if self.coupon:
+            return self.coupon.discount / 100 * self.total_price
+        return 0
+
+    @property
+    def total_price_with_discount(self):
+        """Цена с использованием купона."""
+        return self.total_price - self.discount
+
     def __init__(self, request):
         """
         Проверяем на существование корзины пользователя, если её
@@ -72,8 +85,16 @@ class Cart:
         """
         self.session = request.session
         self.cart = self.session.get(settings.CART_SESSION_ID)
+
         if not self.cart:
             self.session[settings.CART_SESSION_ID] = self.cart = {}
+
+        if coupon_id := self.session.get('coupon_id'):
+            self.coupon = Coupon.objects.get(
+                pk=coupon_id
+            )
+        else:
+            self.coupon = None
 
     def __iter__(self):
         """

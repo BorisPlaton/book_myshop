@@ -1,5 +1,7 @@
+from django.core.validators import MaxValueValidator
 from django.db import models
 
+from coupons.models import Coupon
 from shop.models import Product
 
 
@@ -15,6 +17,17 @@ class Order(models.Model):
     created = models.DateTimeField("Created at", auto_now_add=True)
     updated = models.DateTimeField("Updated at", auto_now=True)
     paid = models.BooleanField("Is order paid", default=False)
+    coupon = models.ForeignKey(
+        Coupon,
+        related_name='orders',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+    discount = models.PositiveIntegerField(
+        default=0,
+        validators=[MaxValueValidator(100)]
+    )
 
     class Meta:
         verbose_name = "Order"
@@ -23,7 +36,8 @@ class Order(models.Model):
 
     @property
     def order_cost(self):
-        return sum([item.total_cost for item in self.order_items.all()])
+        total_cost = sum(item.total_cost for item in self.order_items.all())
+        return total_cost - total_cost * (self.discount / 100)
 
     def __str__(self):
         return f"{self.pk}"

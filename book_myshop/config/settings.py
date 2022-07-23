@@ -20,6 +20,7 @@ INSTALLED_APPS = [
 
     'shop',
     'cart',
+    'coupons',
     'orders',
 ]
 
@@ -32,6 +33,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ROOT_URLCONF = 'config.urls'
 
@@ -98,3 +101,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CART_SESSION_ID = 'cart'
+
+REDIS_HOST = '0.0.0.0'
+REDIS_PORT = '6380'
+REDIS_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKED = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
